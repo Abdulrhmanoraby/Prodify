@@ -4,8 +4,11 @@
 //
 //  Created by abdulrhman urabi on 20/10/2025.
 //
+import Foundation
+
 
 import Foundation
+
 
 final class ShopifyService {
     static let shared = ShopifyService()
@@ -54,4 +57,3 @@ final class ShopifyService {
         return response.products
     }
 }
-

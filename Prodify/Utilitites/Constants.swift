@@ -5,9 +5,6 @@
 //  Created by abdulrhman urabi on 20/10/2025.
 //
 
-//
-
-
 import Foundation
 
 
@@ -37,5 +34,7 @@ enum Constants {
 
     // MARK: - UI Configuration
     static let mainAccentColorHex = "#2B6CF3"
+}
+
 }
 
