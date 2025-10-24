@@ -17,7 +17,7 @@ final class NetworkClient {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(Constants.AdminApiAccessToken, forHTTPHeaderField: "X-Shopify-Access-Token")
+        request.setValue(Constants.adminApiAccessToken, forHTTPHeaderField: "X-Shopify-Access-Token")
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
