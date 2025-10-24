@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyB2tnGoKBSZ7PFsgCoHprbC5YLHc-qMm4o</string>
+	<key>GCM_SENDER_ID</key>
+	<string>255651045386</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>iTi.Prodify</string>
+	<key>PROJECT_ID</key>
+	<string>prodify-ios</string>
+	<key>STORAGE_BUCKET</key>
+	<string>prodify-ios.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:255651045386:ios:4e5a20ec61275a201afff3</string>
+</dict>
+</plist>
