@@ -20,17 +20,8 @@ struct HomeView: View {
                     // Search bar
                     HomeSearchBar(searchText: $searchText)
 
-                    // Hero Carousel placeholder
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.systemGray6))
-                        .frame(height: 160)
-                        .overlay(
-                            Text("Hero Carousel Placeholder")
-                                .foregroundColor(.gray)
-                                .font(.subheadline)
-                        )
-                        .padding(.horizontal)
-
+                    
+                    CouponAndAdsFeature()
                     // Brand collection
                     BrandCollectionView(vendors: vm.vendors)
                 }
