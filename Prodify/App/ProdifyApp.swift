@@ -11,7 +11,6 @@ import SwiftUI
 struct ProdifyApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeView()
         }
     }
 }
