@@ -4,6 +4,7 @@
 //
 //  Created by abdulrhman urabi on 20/10/2025.
 //
+
 import Foundation
 
 struct Product: Identifiable, Decodable {
@@ -25,4 +26,5 @@ struct Product: Identifiable, Decodable {
 struct ProductsResponse: Decodable {
     let products: [Product]
 }
+
 

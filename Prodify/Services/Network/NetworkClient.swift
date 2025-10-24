@@ -4,6 +4,7 @@
 //
 //  Created by abdulrhman urabi on 20/10/2025.
 //
+
 import Foundation
 
 
@@ -29,4 +30,5 @@ final class NetworkClient {
         return try JSONDecoder().decode(T.self, from: data)
     }
 }
+
 
