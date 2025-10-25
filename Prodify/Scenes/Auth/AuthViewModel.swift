@@ -81,5 +81,6 @@ final class AuthViewModel: ObservableObject {
                 completion?()
             }
         }
+        
     }
 }
