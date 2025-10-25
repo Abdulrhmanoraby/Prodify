@@ -16,7 +16,7 @@ struct LoginView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Sign in").font(.title2).bold()
+            Text("Sign in ").font(.title2).bold()
 
             TextField("Email", text: $email)
                 .keyboardType(.emailAddress)
