@@ -16,7 +16,7 @@ struct SignupView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Create account").font(.title2).bold()
+            Text("Create account ").font(.title2).bold()
 
             TextField("Email", text: $email)
                 .keyboardType(.emailAddress)
