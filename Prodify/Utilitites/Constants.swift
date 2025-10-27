@@ -33,7 +33,7 @@ enum Constants {
     }
 
     // MARK: - UI Configuration
-    static let mainAccentColorHex = "#2B6CF3"
+    static let mainAccentColorHex = "#0D0101"
 }
 
 
