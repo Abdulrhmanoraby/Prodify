@@ -6,23 +6,24 @@
 //
 import Foundation
 
-struct Product: Identifiable, Decodable {
+struct Product: Identifiable, Codable {
     let id: Int
     let title: String
     let vendor: String?
     let image: ProductImage?
     let variants: [Variant]?
+    let product_type : String?
 
-    struct ProductImage: Decodable {
+    struct ProductImage: Codable {
         let src: String?
     }
 
-    struct Variant: Decodable {
+    struct Variant: Codable {
         let price: String?
     }
 }
 
-struct ProductsResponse: Decodable {
+struct ProductsResponse: Codable {
     let products: [Product]
 }
 
