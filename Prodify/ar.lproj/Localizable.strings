@@ -1,0 +1,28 @@
+/* 
+  Localizable.strings
+  Prodify
+
+  Created by Ahmed Tarek on 29/10/2025.
+  
+*/
+"Settings" = "الإعدادات";
+"Language" = "اللغة";
+"Theme" = "المظهر";
+"Notifications" = "الإشعارات";
+"Permissions" = "الأذونات";
+"Legal & About" = "حول والتصاريح القانونية";
+"About App" = "حول التطبيق";
+"Terms & Privacy" = "الشروط والخصوصية";
+"Reset Settings" = "إعادة تعيين الإعدادات";
+"Camera" = "الكاميرا";
+"Location" = "الموقع";
+"Photos" = "الصور";
+"App Language" = "لغة التطبيق";
+"Appearance" = "المظهر";
+"Enable Notifications" = "تفعيل الإشعارات";
+"About" = "حول";
+"Legal" = "قانوني";
+"Version" = "الإصدار";
+"Developed by" = "تم التطوير بواسطة";
+"Terms of Service" = "شروط الاستخدام";
+"Privacy Policy" = "سياسة الخصوصية";

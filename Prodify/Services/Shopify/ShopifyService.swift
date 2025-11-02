@@ -7,7 +7,6 @@
 import Foundation
 
 
-import Foundation
 
 
 final class ShopifyService {
@@ -62,7 +61,9 @@ final class ShopifyService {
         
         
         let response : CategoryResponse = try await NetworkClient.shared.get(url, type: CategoryResponse.self)
-        return response.custom_collections
+        return response.custom_collections.filter {
+            !$0.title.localizedCaseInsensitiveContains("home")
+        }
     }
 }
 

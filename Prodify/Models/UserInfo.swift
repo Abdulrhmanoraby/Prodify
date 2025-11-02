@@ -11,8 +11,10 @@ import Foundation
 
 
 // small app-facing user model
-struct UserInfo {
-    let id: String
-    let email: String?
-    let verified: Bool
+struct UserInfo: Codable, Identifiable {
+    var id: String
+    var firstName: String
+    var lastName: String
+    var email: String?
+    var verified: Bool
 }

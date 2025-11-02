@@ -5,53 +5,111 @@
 //  Created by abdulrhman urabi on 23/10/2025.
 //
 
-
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
 
 struct LoginView: View {
-    @StateObject private var vm = AuthViewModel()
     @State private var email = ""
     @State private var password = ""
-    @State private var showVerify = false
+    @State private var errorMessage: String?
+    @State private var isLoading = false
+    @Environment(\.dismiss) private var dismiss
+    private let db = Firestore.firestore()
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Sign in ").font(.title2).bold()
-
-            TextField("Email", text: $email)
-                .keyboardType(.emailAddress)
-                .autocapitalization(.none)
-                .textFieldStyle(.roundedBorder)
-
-            SecureField("Password", text: $password)
-                .textFieldStyle(.roundedBorder)
-
-            if vm.isLoading { ProgressView() }
-
-            Button("Sign In") {
-                vm.signIn(email: email, password: password)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    if let u = vm.user, !u.verified { showVerify = true }
-                }
+        
+        
+       
+           
+            VStack(spacing: 20) {
+                Image("loginImage")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 450)
+                    .clipped()
+                    .ignoresSafeArea(edges: .top)
+                Spacer().frame(height: 10)
+                VStack{
+                    Text("Login")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    TextField("Email", text: $email)
+                        .textFieldStyle(.roundedBorder)
+                        .keyboardType(.emailAddress)
+                        .autocapitalization(.none)
+                    
+                    
+                    SecureField("Password", text: $password)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    
+                    if let errorMessage = errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    Button {
+                        Task { await loginUser() }
+                    } label: {
+                        if isLoading {
+                            ProgressView()
+                        } else {
+                            Text("Login")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                                
+                        }
+                        
+                    }
+                    
+                    NavigationLink("Don’t have an account? Register") {
+                        RegisterView()
+                    }
+                }.padding(.horizontal)
+                    .padding()
+                .font(.footnote)
+               
+                .navigationTitle("Login")
             }
-            .buttonStyle(.borderedProminent)
+        Spacer().frame(height: 110)
+            .padding()
+            
+            
+        }
+    
+    
+    
 
-            NavigationLink("Create account", destination: SignupView())
+    private func loginUser() async {
+        guard !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Please fill in all fields."
+            return
+        }
 
-            if let err = vm.errorMessage {
-                Text(err).foregroundColor(.red).font(.caption)
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            let result = try await Auth.auth().signIn(withEmail: email, password: password)
+
+            // Fetch user info from Firestore
+            let snapshot = try await db.collection("users").document(result.user.uid).getDocument()
+            if let data = snapshot.data() {
+                print("Fetched user info:", data)
             }
 
-            Spacer()
+            dismiss()
+        } catch {
+            errorMessage = error.localizedDescription
         }
-        .padding()
-        .sheet(isPresented: $showVerify) {
-            VerifyEmailView(vm: vm)
-        }
-        .onAppear { vm.loadCurrent() }
     }
 }
-
-#Preview {
+#Preview{
     LoginView()
 }
