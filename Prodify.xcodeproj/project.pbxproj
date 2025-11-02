@@ -11,11 +11,27 @@
 		6CFF3ECB2EAFE4E6001F0EF6 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 6CFF3ECA2EAFE4E6001F0EF6 /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		6C6A0C4C2EB79AB400F4E59D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6CA8C54C2EA6B5A100BA9811 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6CA8C5532EA6B5A100BA9811;
+			remoteInfo = Prodify;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		6C6A0C482EB79AB400F4E59D /* ProdifyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProdifyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6CA8C5542EA6B5A100BA9811 /* Prodify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prodify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		6C6A0C492EB79AB400F4E59D /* ProdifyTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ProdifyTests;
+			sourceTree = "<group>";
+		};
 		6CA8C5562EA6B5A100BA9811 /* Prodify */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Prodify;
@@ -24,6 +40,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		6C6A0C452EB79AB400F4E59D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6CA8C5512EA6B5A100BA9811 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -40,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				6CA8C5562EA6B5A100BA9811 /* Prodify */,
+				6C6A0C492EB79AB400F4E59D /* ProdifyTests */,
 				6CA8C5552EA6B5A100BA9811 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -48,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				6CA8C5542EA6B5A100BA9811 /* Prodify.app */,
+				6C6A0C482EB79AB400F4E59D /* ProdifyTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,6 +80,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6C6A0C472EB79AB400F4E59D /* ProdifyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6C6A0C502EB79AB400F4E59D /* Build configuration list for PBXNativeTarget "ProdifyTests" */;
+			buildPhases = (
+				6C6A0C442EB79AB400F4E59D /* Sources */,
+				6C6A0C452EB79AB400F4E59D /* Frameworks */,
+				6C6A0C462EB79AB400F4E59D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6C6A0C4D2EB79AB400F4E59D /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				6C6A0C492EB79AB400F4E59D /* ProdifyTests */,
+			);
+			name = ProdifyTests;
+			packageProductDependencies = (
+			);
+			productName = ProdifyTests;
+			productReference = 6C6A0C482EB79AB400F4E59D /* ProdifyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		6CA8C5532EA6B5A100BA9811 /* Prodify */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6CA8C55F2EA6B5A300BA9811 /* Build configuration list for PBXNativeTarget "Prodify" */;
@@ -86,9 +134,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					6C6A0C472EB79AB400F4E59D = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = 6CA8C5532EA6B5A100BA9811;
+					};
 					6CA8C5532EA6B5A100BA9811 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -100,6 +152,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ar,
 			);
 			mainGroup = 6CA8C54B2EA6B5A100BA9811;
 			minimizedProjectReferenceProxies = 1;
@@ -112,11 +165,19 @@
 			projectRoot = "";
 			targets = (
 				6CA8C5532EA6B5A100BA9811 /* Prodify */,
+				6C6A0C472EB79AB400F4E59D /* ProdifyTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		6C6A0C462EB79AB400F4E59D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6CA8C5522EA6B5A100BA9811 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -127,6 +188,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		6C6A0C442EB79AB400F4E59D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6CA8C5502EA6B5A100BA9811 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -136,7 +204,57 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		6C6A0C4D2EB79AB400F4E59D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6CA8C5532EA6B5A100BA9811 /* Prodify */;
+			targetProxy = 6C6A0C4C2EB79AB400F4E59D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		6C6A0C4E2EB79AB400F4E59D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = iTi.ProdifyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Prodify.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Prodify";
+			};
+			name = Debug;
+		};
+		6C6A0C4F2EB79AB400F4E59D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = iTi.ProdifyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Prodify.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Prodify";
+			};
+			name = Release;
+		};
 		6CA8C55D2EA6B5A300BA9811 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -315,6 +433,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		6C6A0C502EB79AB400F4E59D /* Build configuration list for PBXNativeTarget "ProdifyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C6A0C4E2EB79AB400F4E59D /* Debug */,
+				6C6A0C4F2EB79AB400F4E59D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		6CA8C54F2EA6B5A100BA9811 /* Build configuration list for PBXProject "Prodify" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
