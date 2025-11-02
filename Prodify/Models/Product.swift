@@ -7,13 +7,13 @@
 import Foundation
 
 struct Product: Identifiable, Codable {
-    let id: Int
+    let id: Int?
     let title: String
     let vendor: String?
     let image: ProductImage?
     let variants: [Variant]?
     let product_type : String?
-
+    let body_html: String?
     struct ProductImage: Codable {
         let src: String?
     }
@@ -23,7 +23,7 @@ struct Product: Identifiable, Codable {
     }
 }
 
-struct ProductsResponse: Codable {
+struct ProductsResponse: Codable{
     let products: [Product]
 }
 

@@ -1,36 +1,38 @@
-//
-//  MeView.swift
-//  Prodify
-//
-//  Created by abdulrhman urabi on 22/10/2025.
-//
-
-// MeView.swift — logic-based screen showing Login, Verify, or Profile.
 import SwiftUI
+import FirebaseAuth
 
 struct MeView: View {
     @StateObject private var vm = AuthViewModel()
+    @EnvironmentObject var orderVM: OrderViewModel
+    @State private var currentEmail = ""
 
     var body: some View {
         NavigationStack {
             Group {
                 if let user = vm.user {
                     if user.verified {
-                        // 1. Verified user → show profile
-                        ProfileView(vm: vm)
+                        LoggedInView(vm: vm, orderVM: orderVM, user: user)
                     } else {
-                        // 2. Not verified → show verify email screen
                         VerifyEmailView(vm: vm)
                     }
                 } else {
-                    //  3. No user → show login screen
-                    LoginView()
+                    NotLoggedInView()
                 }
             }
             .navigationTitle("Me")
-            .onAppear {
-                vm.loadCurrent()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination:CartView() ) {
+                        Image(systemName: "cart")
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination:SettingsView() ) {
+                        Image(systemName: "gearshape")
+                    }
+                }
             }
+            .onAppear { vm.loadCurrent() }
         }
     }
 }

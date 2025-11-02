@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6CB9213B2EAC2DF5007FE896 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 6CB9213A2EAC2DF5007FE896 /* FirebaseAuth */; };
+		6CFF3ECB2EAFE4E6001F0EF6 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 6CFF3ECA2EAFE4E6001F0EF6 /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6CB9213B2EAC2DF5007FE896 /* FirebaseAuth in Frameworks */,
+				6CFF3ECB2EAFE4E6001F0EF6 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +73,7 @@
 			name = Prodify;
 			packageProductDependencies = (
 				6CB9213A2EAC2DF5007FE896 /* FirebaseAuth */,
+				6CFF3ECA2EAFE4E6001F0EF6 /* FirebaseFirestore */,
 			);
 			productName = Prodify;
 			productReference = 6CA8C5542EA6B5A100BA9811 /* Prodify.app */;
@@ -267,6 +270,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -294,6 +298,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -346,6 +351,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 6CB921392EAC2DF5007FE896 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		6CFF3ECA2EAFE4E6001F0EF6 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6CB921392EAC2DF5007FE896 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

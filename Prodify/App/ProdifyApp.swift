@@ -9,6 +9,9 @@ import SwiftUI
 import FirebaseCore
 @main
 struct ProdifyApp: App {
+    @StateObject private var cartVM = CartViewModel()
+    @StateObject private var orderVM = OrderViewModel()
+    @StateObject private var vm = SettingsViewModel()
     init(){
         FirebaseApp.configure()
     }
@@ -17,6 +20,9 @@ struct ProdifyApp: App {
 
 
             MainTabView()
+                .environmentObject(cartVM)
+                .environmentObject(orderVM)
+                .environmentObject(vm)
 
 
         }

@@ -6,9 +6,6 @@
 //
 
 import SwiftUI
-
-
-
 struct HomeHeaderView: View {
     var body: some View {
         HStack {
@@ -20,15 +17,12 @@ struct HomeHeaderView: View {
             Spacer()
 
             HStack(spacing: 16) {
-                Button(action: {
-                    // TODO: Navigate to favorites
-                }) {
+                
+                // TODO: Navigate to favorites
                     Image(systemName: "heart")
-                }
+                
 
-                Button(action: {
-                    // TODO: Navigate to cart
-                }) {
+                NavigationLink(destination: CartView()) {
                     Image(systemName: "cart")
                 }
             }
@@ -38,6 +32,8 @@ struct HomeHeaderView: View {
         .padding(.horizontal)
     }
 }
+
+
 #Preview {
    HomeHeaderView()
 }

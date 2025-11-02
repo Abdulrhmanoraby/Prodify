@@ -64,7 +64,9 @@ struct ProductsGridView: View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(products) { product in
-                    ProductCard(product: product)
+                    NavigationLink(destination: ProductInfoView(product: product).environmentObject(CartViewModel())){
+                        ProductCard(product: product)
+                    }
                 }
             }
             .padding(.horizontal)

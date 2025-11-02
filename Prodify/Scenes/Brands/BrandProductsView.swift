@@ -9,6 +9,7 @@ import SwiftUI
 struct BrandProductsView: View {
     let vendor: String
     @StateObject private var vm: BrandProductsViewModel
+    @EnvironmentObject var cartVM: CartViewModel
 
     init(vendor: String) {
         self.vendor = vendor
@@ -29,6 +30,7 @@ struct BrandProductsView: View {
             } else {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                     ForEach(vm.products) { product in
+                        NavigationLink(destination: ProductInfoView(product: product).environmentObject(CartViewModel())) {
                         VStack(alignment: .leading, spacing: 8) {
                             AsyncImage(url: URL(string: product.image?.src ?? "")) { img in
                                 img.resizable().scaledToFill()
@@ -37,12 +39,28 @@ struct BrandProductsView: View {
                             }
                             .frame(height: 140)
                             .cornerRadius(10)
-
+                            
                             Text(product.title)
                                 .font(.subheadline)
                                 .lineLimit(2)
                             Text("$\(product.variants?.first?.price ?? "-")")
                                 .font(.headline)
+                            // Add to Cart Button
+                            Button {
+                                Task {
+                                    await cartVM.add(product: product)
+                                }
+                            } label: {
+                                Text("Add to Cart")
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(8)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                            }
+                            .padding(.top, 6)
                         }
                         .padding(8)
                         .background(Color.white)
@@ -50,6 +68,7 @@ struct BrandProductsView: View {
                         .shadow(radius: 2)
                     }
                 }
+            }
                 .padding()
             }
         }
