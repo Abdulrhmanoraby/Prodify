@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import SwiftData
 @main
 struct ProdifyApp: App {
     @StateObject private var cartVM = CartViewModel()
@@ -17,14 +18,11 @@ struct ProdifyApp: App {
     }
     var body: some Scene {
         WindowGroup {
-
-
             MainTabView()
                 .environmentObject(cartVM)
                 .environmentObject(orderVM)
                 .environmentObject(vm)
-
-
+                .modelContainer(for: [FavoriteProduct.self])
         }
     }
 }
