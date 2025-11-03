@@ -36,6 +36,16 @@ final class CartViewModel: ObservableObject {
         await loadCart()
     }
     
+    func increaseQuantity(itemId: Int) async {
+        await CartService.shared.increaseQuantity(itemId: itemId)
+        await loadCart()
+    }
+    
+    func decreaseQuantity(itemId: Int) async {
+        await CartService.shared.decreaseQuantity(itemId: itemId)
+        await loadCart()
+    }
+    
     var total: Double {
         items.reduce(0) { $0 + ($1.price * Double($1.quantity)) }
     }
