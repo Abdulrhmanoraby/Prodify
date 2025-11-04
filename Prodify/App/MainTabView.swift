@@ -24,6 +24,11 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Me", systemImage: "person.circle")
                 }
+
+            FavoriteProductView()
+                .tabItem {
+                    Label("Favorites", systemImage: "heart.fill")
+                }
         }
         .tint(.black)
     }
