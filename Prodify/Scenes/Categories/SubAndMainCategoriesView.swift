@@ -55,11 +55,10 @@ struct SubAndMainCategoriesView: View {
                         Text(sub).tag(sub)
                     }
                 }
-                .onChange(of: selectedSub) { newValue in
-                    vm.filterProducts(by: newValue)
-//                    vm.selectedSubCategory = newValue
-//                    vm.applyFilters()
-                }
+                // Use the explicit iOS 14+ overload to avoid Binding/dynamicMember issues
+                .onChange(of: selectedSub, perform: { newValue in
+                    vm.filterProducts(byType: newValue)
+                })
                 .pickerStyle(.menu)
                 .tint(.blue)
                 .padding(.trailing)

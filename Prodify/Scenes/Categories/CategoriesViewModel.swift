@@ -4,7 +4,6 @@
 //
 //  Created by abdulrhman urabi on 25/10/2025.
 //
-
 import Foundation
 @MainActor
 final class CategoriesViewModel: ObservableObject{
@@ -101,4 +100,14 @@ final class CategoriesViewModel: ObservableObject{
         print("[VM] filteredProducts count after filtering:", filteredProducts.count)
     }
   
+    // MARK: - Added: filter by product type used by the Picker
+    @MainActor
+    func filterProducts(byType type: String) {
+        let source = products.isEmpty ? allProducts : products
+        if type == "All" {
+            filteredProducts = source
+        } else {
+            filteredProducts = source.filter { ($0.product_type ?? "").caseInsensitiveCompare(type) == .orderedSame }
+        }
+    }
 }

@@ -3,7 +3,6 @@
 //  Prodify
 //
 //  Created by abdulrhman urabi on 20/10/2025.
-
 import SwiftUI
 
 struct HomeView: View {
@@ -24,7 +23,7 @@ struct HomeView: View {
                     CouponAndAdsFeature()
 
                     if !vm.filteredVendors.isEmpty {
-                        BrandCollectionView(vendors: vm.filteredVendors)
+                        BrandCollectionView(vendors: vm.filteredVendors.map { $0.title })
                     }
 
                     if !vm.filteredProducts.isEmpty {
