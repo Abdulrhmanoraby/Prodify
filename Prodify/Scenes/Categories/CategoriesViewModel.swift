@@ -14,10 +14,16 @@ final class CategoriesViewModel: ObservableObject{
     @Published var selectedCategory: Category?
     @Published var filteredProducts: [Product] = []
     @Published var allProductTypes: [String] = []
-    @Published var allProducts: [Product] = []  // Store everything once
+    @Published var allProducts: [Product] = []
+    @Published var searchText: String = "" {
+        didSet {
+            print("[VM] searchText didSet -> '", searchText, "'")
+            filterProductsBySearch(searchText)
+        }
+    }
     @Published var isLoading = false
     
-    func loadCategories() async{
+    func loadCategories() async throws{
         isLoading = true
         defer {
             isLoading = false
@@ -28,6 +34,7 @@ final class CategoriesViewModel: ObservableObject{
             self.selectedCategory = fetched.first
         }catch{
             errorMessage = error.localizedDescription
+            throw error
         }
         
     }
@@ -45,40 +52,12 @@ final class CategoriesViewModel: ObservableObject{
         }
     }
     
-    @MainActor
-    func filterProducts(by subCategory: String) {
-        guard !products.isEmpty else {
-            print("No products to filter")
-            return
-        }
-
-        print("Filtering by:", subCategory)
-        print("Available product types:", Set(products.compactMap { $0.product_type }))
-
-        guard subCategory != "All" else {
-            if let selected = selectedCategory {
-                filterByCategory(selected)
-            } else {
-                filteredProducts = allProducts
-            }
-            return
-        }
-
-        let sub = subCategory.lowercased()
-        filteredProducts = products.filter { product in
-            let type = product.product_type?.lowercased() ?? ""
-            let title = product.title.lowercased()
-            return type.contains(sub) || title.contains(sub)
-        }
-
-        print("Filtered count:", filteredProducts.count)
-    }
     func loadAllProductTypes() async throws {
         let allProducts = try await ShopifyService.shared.fetchAllProducts(limit: 250)
         let types = Set(allProducts.compactMap { $0.product_type?.trimmingCharacters(in: .whitespacesAndNewlines) })
         allProductTypes = ["All"] + types.sorted()
     }
- 
+   @MainActor
     func loadAllProducts() async throws {
         isLoading = true
         errorMessage = nil
@@ -101,10 +80,25 @@ final class CategoriesViewModel: ObservableObject{
         }
     }
     
-//    var subCategoriesFromAPI: [String] {
-//        let types = Set(products.compactMap { $0.product_type?.trimmingCharacters(in: .whitespacesAndNewlines) })
-//        let cleaned = types.filter { !$0.isEmpty }
-//        return ["All"] + cleaned.sorted()
-//    }
+    @MainActor
+    func filterProductsBySearch(_ query: String) {
+        print("[VM] filterProductsBySearch called with query: '", query, "'")
+        let source = products.isEmpty ? allProducts : products
+        print("[VM] filtering source count:", source.count)
+
+        if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            filteredProducts = source
+            print("[VM] filteredProducts reset to all (", filteredProducts.count, ")")
+            return
+        }
+
+        let lowerQuery = query.lowercased()
+        let filtered = source.filter { product in
+            product.title.lowercased().contains(lowerQuery) ||
+            (product.product_type?.lowercased().contains(lowerQuery) ?? false)
+        }
+        filteredProducts = filtered
+        print("[VM] filteredProducts count after filtering:", filteredProducts.count)
+    }
   
 }

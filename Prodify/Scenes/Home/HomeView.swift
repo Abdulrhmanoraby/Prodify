@@ -14,27 +14,47 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // Header with logo + icons
                     HomeHeaderView()
 
-                    // Search bar
                     HomeSearchBar(searchText: $searchText)
+                        .onChange(of: searchText) { newValue in
+                            vm.filterSearch(newValue)
+                        }
 
-                    
                     CouponAndAdsFeature()
-                    // Brand collection
-                    BrandCollectionView(vendors: vm.vendors)
+
+                    if !vm.filteredVendors.isEmpty {
+                        BrandCollectionView(vendors: vm.filteredVendors)
+                    }
+
+                    if !vm.filteredProducts.isEmpty {
+                        ProductsGridView(
+                            products: vm.filteredProducts,
+                            isLoading: vm.isLoading,
+                            errorMessage: vm.errorMessage
+                        )
+                    }
+
+                    if vm.filteredVendors.isEmpty && vm.filteredProducts.isEmpty && !searchText.isEmpty {
+                        Text("No results found for \"\(searchText)\"")
+                            .foregroundColor(.gray)
+                            .padding()
+                    }
                 }
                 .padding(.vertical)
             }
-            .task { await vm.load() }
+            .task {
+                await vm.load()
+            }
             .overlay {
-                if vm.isLoading { ProgressView().scaleEffect(1.3) }
+                if vm.isLoading {
+                    ProgressView().scaleEffect(1.3)
+                }
             }
         }
     }
 }
-#Preview{
+
+#Preview {
     HomeView()
 }
-
