@@ -2,9 +2,9 @@ import SwiftUI
 import FirebaseAuth
 
 struct OrderListView: View {
-    @EnvironmentObject  var vm: OrderViewModel
+    @EnvironmentObject var vm: OrderViewModel
     @State private var currentEmail = ""
-
+    @State private var refreshID = UUID()
     var body: some View {
         NavigationStack {
             Group {
@@ -20,7 +20,7 @@ struct OrderListView: View {
                         .foregroundColor(.gray)
                         .padding()
                 } else {
-                    List(vm.orders) { order in
+                    List(vm.orders, id: \.id) { order in
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Order ID: \(order.id)")
                                 .font(.headline)
@@ -52,19 +52,29 @@ struct OrderListView: View {
                         .padding(.vertical, 6)
                     }
                     .listStyle(.plain)
+                    .id(refreshID)
+                    .refreshable {
+                        await reloadOrders()
+                    }
                 }
             }
             .navigationTitle("My Orders")
             .task {
-                if let user = Auth.auth().currentUser {
-                    currentEmail = user.email ?? "guest@prodify.com"
-                    await vm.fetchOrders(for: currentEmail)
-                }
+                await reloadOrders()
             }
         }
     }
 
-    // MARK: - Helper to format Shopify date strings
+    // MARK: - Reload helper
+    private func reloadOrders() async {
+        if let user = Auth.auth().currentUser {
+            currentEmail = user.email ?? "guest@prodify.com"
+            await vm.fetchOrders(for: currentEmail)
+            refreshID = UUID() 
+        }
+    }
+
+    // MARK: - Date formatter
     private func formatDate(from isoDate: String) -> String {
         let formatter = ISO8601DateFormatter()
         if let date = formatter.date(from: isoDate) {
@@ -78,5 +88,3 @@ struct OrderListView: View {
 #Preview {
     OrderListView()
 }
-
-

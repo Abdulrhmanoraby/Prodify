@@ -52,9 +52,15 @@ struct CartView: View {
                             .bold()
                     }
                     .padding()
-                    
-                    NavigationLink("Proceed to Checkout") {
-                        AddressView(cartProducts: vm.products) // placeholder
+                    NavigationLink(destination: CouponView(cartProducts: vm.products
+                    )) {
+                        Text("Checkout")
+                            .bold()
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
                     }
                     .buttonStyle(.borderedProminent)
                     .padding(.bottom, 12)

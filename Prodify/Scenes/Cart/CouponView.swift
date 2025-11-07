@@ -1,101 +1,123 @@
-//
-//  CouponView.swift
-//  Prodify
-//
-//  Created by abdulrhman urabi on 27/10/2025.
-//
-
 import SwiftUI
-import FirebaseAuth
 
 struct CouponView: View {
-    let cartProducts: [Product]
-    let address: String
-    let paymentMethod: String
+    @EnvironmentObject var authVM: AuthViewModel
 
-    @State private var coupon = ""
-    @State private var isLoading = false
-    @State private var currentEmail: String = ""
-    @State private var navigateToOrders = false
-    @EnvironmentObject var vm: CartViewModel
-    @EnvironmentObject var orderVM : OrderViewModel
+    let cartProducts: [Product]
+
+    @State private var couponCode = ""
+    @State private var discount: Double = 0
+    @State private var totalAmount: Double = 0
+    @State private var discountedTotal: Double = 0
+    @State private var navigateToPayment = false
+    @State private var navigateToAddress = false
+    @State private var showInvalidCouponAlert = false
 
     var body: some View {
         VStack(spacing: 20) {
-            Text("Apply Coupon (optional)")
-                .font(.title3)
+            Text("Apply Coupon").font(.title2).bold()
 
-            TextField("Enter coupon", text: $coupon)
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal)
+            HStack {
+                TextField("Enter coupon code", text: $couponCode)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .autocapitalization(.allCharacters)
+                    .disableAutocorrection(true)
+
+                Button("Apply") { applyCoupon() }
+                    .buttonStyle(.borderedProminent)
+            }
+            .padding(.horizontal)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Subtotal: \(totalAmount, specifier: "%.2f") EGP")
+                if discount > 0 {
+                    Text("Discount: -\(discount, specifier: "%.2f") EGP").foregroundColor(.green)
+                }
+                Divider()
+                Text("Total: \(discountedTotal, specifier: "%.2f") EGP").font(.headline)
+            }
+            .padding()
+
+            Spacer()
 
             Button {
-                Task { await placeOrder()
-                    
-                }
+                print("Proceed pressed — auth user:", authVM.user?.email ?? "nil")
+                proceedToCheckout()
             } label: {
-                Text("Place Order")
+                Text("Proceed to Checkout")
                     .bold()
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(10)
+                    .padding(.horizontal)
             }
-            .padding(.horizontal)
 
-            if isLoading {
-                ProgressView("Processing...")
-            } else if let msg = orderVM.successMessage {
-                Text(msg).foregroundColor(.green)
-        
-            } else if let err = orderVM.errorMessage {
-                Text(err).foregroundColor(.red)
-                
-            }
-            // Navigate to OrderListView after placing order
-            NavigationLink(destination: OrderListView(), isActive: $navigateToOrders) {
-                            EmptyView()
-                        }
-                        .hidden()
+            // Hidden links driven by state (must be in this same view)
+            NavigationLink(
+                destination: PaymentView(
+                    address: "\(authVM.user?.street ?? ""), \(authVM.user?.city ?? ""), \(authVM.user?.country ?? "")",
+                    cartProducts: cartProducts,
+                    totalAmount: discountedTotal,        //
+                    userEmail: authVM.user?.email ?? "guest@prodify.com"
+                ),
+                isActive: $navigateToPayment
+            ) { EmptyView() }
+
+            NavigationLink(
+                destination: ProfileAddressView(),
+                isActive: $navigateToAddress
+            ) { EmptyView() }
         }
-        .navigationTitle("Place Order")
-        .task {
-            if let user = Auth.auth().currentUser {
-                currentEmail = user.email ?? "guest@prodify.com"
-            }
-        }
+        .onAppear(perform: calculateTotal)
+        .alert("Invalid Coupon", isPresented: $showInvalidCouponAlert) {
+            Button("OK", role: .cancel) {}
+        } message: { Text("Invalid coupon code") }
+        .navigationTitle("Coupons & Discounts")
     }
 
-    // MARK: - Place Order Logic (Fixed)
-    private func placeOrder() async {
-        guard !cartProducts.isEmpty else {
-            print("No products in cart.")
+    private func applyCoupon() {
+        let code = couponCode.uppercased()
+        if code == "SAVE10" {
+            discount = totalAmount * 0.10
+        } else if code == "FREESHIP" {
+            discount = 50
+        } else if code.isEmpty {
+            discount = 0
+        } else {
+            showInvalidCouponAlert = true
+            discount = 0
+        }
+        discountedTotal = totalAmount - discount
+    }
+
+    private func calculateTotal() {
+        totalAmount = cartProducts.compactMap { Double($0.variants?.first?.price ?? "0") }.reduce(0, +)
+        discountedTotal = totalAmount
+    }
+
+    private func proceedToCheckout() {
+        guard let user = authVM.user else {
+            authVM.errorMessage = "You must log in first."
             return
         }
 
-        isLoading = true
-        defer { isLoading = false }
+        let missingInfo =
+            (user.street?.isEmpty ?? true) ||
+            (user.city?.isEmpty ?? true) ||
+            (user.country?.isEmpty ?? true) ||
+            (user.phoneNumber?.isEmpty ?? true)
 
-        let email = currentEmail.isEmpty ? "guest@prodify.com" : currentEmail
-
-        // Create Firestore order using real cart products
-        await orderVM.createOrder(
-            products: cartProducts,
-            email: email,
-            address: address
-        )
-
-        // (Optional) confirmation log
-        if let msg = orderVM.successMessage {
-            print("\(msg)")
-            await vm.clearCart()
-            await orderVM.fetchOrders(for: currentEmail)
-            navigateToOrders = true
-        } else if let err = orderVM.errorMessage {
-            print("\(err)")
+        // ensure main thread
+        DispatchQueue.main.async {
+            if missingInfo {
+                print("missing info -> navigating to profile address")
+                navigateToAddress = true
+            } else {
+                print("all info present -> navigating to payment")
+                navigateToPayment = true
+            }
         }
     }
 }
-
-

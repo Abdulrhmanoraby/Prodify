@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import PayPalCheckout
 
 enum Constants {
     // MARK: - Shopify Configuration
@@ -35,6 +35,9 @@ enum Constants {
     // MARK: - UI Configuration
     static let mainAccentColorHex = "#0D0101"
 }
+//struct PayPalConfig {
+//    static let clientID = "AYr_jjlCOlxBGThrQlWX4L6ySOWwtgcLTHtRkp3fFw93T43iYMPrLz9-U3Mhm_FIAmgMrCHcPk0kvOAI"
+//}
 
 
 

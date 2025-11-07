@@ -2,7 +2,7 @@ import SwiftUI
 import FirebaseAuth
 
 struct MeView: View {
-    @StateObject private var vm = AuthViewModel()
+    @EnvironmentObject private var vm: AuthViewModel
     @EnvironmentObject var orderVM: OrderViewModel
     @State private var currentEmail = ""
 

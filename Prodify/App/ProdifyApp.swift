@@ -7,24 +7,28 @@
 
 import SwiftUI
 import FirebaseCore
+import PayPalCheckout
+
 @main
 struct ProdifyApp: App {
     @StateObject private var cartVM = CartViewModel()
     @StateObject private var orderVM = OrderViewModel()
     @StateObject private var vm = SettingsViewModel()
-    init(){
+    @StateObject private var authVM = AuthViewModel()
+
+    init() {
         FirebaseApp.configure()
+        PayPalConfig.configure()
     }
+
     var body: some Scene {
         WindowGroup {
-
-
             MainTabView()
                 .environmentObject(cartVM)
                 .environmentObject(orderVM)
                 .environmentObject(vm)
-
-
+                .environmentObject(authVM)
         }
     }
 }
+

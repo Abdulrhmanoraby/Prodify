@@ -1,12 +1,7 @@
-//
-//  AuthService.swift
-//  Prodify
-//
-//  Created by abdulrhman urabi on 20/10/2025.
-//
-
+// AuthService.swift
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
 import FirebaseFirestore
 
 final class AuthService {
@@ -14,149 +9,130 @@ final class AuthService {
     private let db = Firestore.firestore()
     private init() {}
 
-    // MARK: - Sign Up and Save User Info
-    func signUp(firstName: String, lastName: String, email: String, password: String, completion: @escaping (Result<UserInfo, Error>) -> Void) {
+    // Sign up and create user doc in Firestore
+    func signUp(firstName: String,
+                lastName: String,
+                email: String,
+                password: String,
+                completion: @escaping (Result<UserInfo, Error>) -> Void) {
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
             if let e = error { return completion(.failure(e)) }
-            guard let user = result?.user else {
+            guard let firebaseUser = result?.user else {
                 return completion(.failure(NSError(domain: "Auth", code: -1)))
             }
 
-            user.sendEmailVerification { _ in
-                // build model
-                let userInfo = UserInfo(
-                    id: user.uid,
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: user.email ?? email,
-                    verified: user.isEmailVerified
-                )
+            let info = UserInfo(
+                id: firebaseUser.uid,
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                verified: firebaseUser.isEmailVerified,
+                phoneNumber: nil,
+                street: nil,
+                city: nil,
+                country: nil
+            )
 
-                // store in Firestore
-                do {
-                    try self.db.collection("users").document(user.uid).setData(from: userInfo)
-                    completion(.success(userInfo))
-                } catch {
-                    completion(.failure(error))
+            do {
+                try self.db.collection("users").document(firebaseUser.uid).setData(from: info) { err in
+                    if let err = err { completion(.failure(err)); return }
+                    // Send verification email and return info
+                    firebaseUser.sendEmailVerification { _ in
+                        completion(.success(info))
+                    }
                 }
+            } catch {
+                completion(.failure(error))
             }
         }
+        
     }
 
-    // MARK: - Sign In (Fetch User Info from Firestore)
+    // Sign in
     func signIn(email: String, password: String, completion: @escaping (Result<UserInfo, Error>) -> Void) {
-        Auth.auth().signIn(withEmail: email, password: password) { result, error in
-            if let e = error { return completion(.failure(e)) }
-            guard let user = result?.user else {
-                return completion(.failure(NSError(domain: "Auth", code: -1)))
+        Auth.auth().signIn(withEmail: email, password: password) { res, err in
+            if let e = err { return completion(.failure(e)) }
+            guard let u = res?.user else {
+                return completion(.failure(NSError(domain: "Auth", code: -1, userInfo: [NSLocalizedDescriptionKey: "No user returned."])))
             }
 
-            user.reload { _ in
-                let docRef = self.db.collection("users").document(user.uid)
-                docRef.getDocument { snapshot, err in
-                    if let err = err { return completion(.failure(err)) }
-
-                    if let snapshot = snapshot, snapshot.exists {
-                        do {
-                            var fetched = try snapshot.data(as: UserInfo.self)
-                            fetched.verified = user.isEmailVerified // ensure real-time verified state
-                            completion(.success(fetched))
-                        } catch {
-                            completion(.failure(error))
-                        }
-                    } else {
-                        // fallback if Firestore record not found
-                        let fallback = UserInfo(
-                            id: user.uid,
-                            firstName: "",
-                            lastName: "",
-                            email: user.email ?? email,
-                            verified: user.isEmailVerified
-                        )
-                        completion(.success(fallback))
+            // dForce reload to get correct verification state
+            u.reload { _ in
+                self.fetchUserInfo(uid: u.uid) { result in
+                    switch result {
+                    case .success(let info):
+                        var updated = info
+                        updated.verified = u.isEmailVerified // Ensure up-to-date verification
+                        completion(.success(updated))
+                    case .failure(let err):
+                        completion(.failure(err))
                     }
                 }
             }
         }
     }
 
-    // MARK: - Resend Verification
-    func resendVerification(completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let user = Auth.auth().currentUser else {
-            return completion(.failure(NSError(domain: "Auth", code: -1)))
+    // Sign out
+    func signOut() -> Result<Void, Error> {
+        do {
+            try Auth.auth().signOut()
+            return .success(())
+        } catch {
+            return .failure(error)
         }
+    }
+
+    // Resend verification
+    func resendVerification(completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let user = Auth.auth().currentUser else { return completion(.failure(NSError(domain: "Auth", code: -1))) }
         user.sendEmailVerification { error in
             if let e = error { completion(.failure(e)); return }
             completion(.success(()))
         }
     }
 
-    // MARK: - Sign Out
-    func signOut() -> Result<Void, Error> {
-        do { try Auth.auth().signOut(); return .success(()) }
-        catch { return .failure(error) }
-    }
-
-    // MARK: - Current User Snapshot
-    func currentUser(completion: @escaping (Result<UserInfo, Error>) -> Void) {
-        guard let u = Auth.auth().currentUser else {
-            completion(.failure(NSError(domain: "Auth", code: -1, userInfo: [NSLocalizedDescriptionKey: "No signed-in user"])))
-            return
-        }
-
-        let db = Firestore.firestore()
-        db.collection("users").document(u.uid).getDocument { snapshot, error in
-            if let err = error {
-                completion(.failure(err))
-                return
-            }
-
-            let data = snapshot?.data()
-            let firstName = data?["firstName"] as? String ?? ""
-            let lastName = data?["lastName"] as? String ?? ""
-            let email = data?["email"] as? String ?? u.email ?? ""
-
-            let info = UserInfo(
-                id: u.uid,
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                verified: u.isEmailVerified
-            )
-
-            completion(.success(info))
-        }
-    }
-
-    // MARK: - Refresh Current User
-    func refreshCurrentUser(completion: @escaping (Result<UserInfo, Error>) -> Void) {
-        guard let firebaseUser = Auth.auth().currentUser else {
-            completion(.failure(NSError(domain: "Auth", code: -1, userInfo: [NSLocalizedDescriptionKey: "No signed-in user"])))
-            return
-        }
-
-        firebaseUser.reload { error in
-            if let err = error {
-                completion(.failure(err))
-                return
-            }
-
-            // Fetch latest Firestore user info
-            self.db.collection("users").document(firebaseUser.uid).getDocument { snapshot, err in
-                if let err = err { return completion(.failure(err)) }
-                if let snapshot = snapshot, snapshot.exists {
-                    do {
-                        var info = try snapshot.data(as: UserInfo.self)
-                        info.verified = firebaseUser.isEmailVerified
-                        completion(.success(info))
-                    } catch {
-                        completion(.failure(error))
-                    }
+    // Fetch user doc from Firestore
+    func fetchUserInfo(uid: String, completion: @escaping (Result<UserInfo, Error>) -> Void) {
+        let ref = db.collection("users").document(uid)
+        ref.getDocument { snapshot, err in
+            if let e = err { return completion(.failure(e)) }
+            do {
+                if let doc = try snapshot?.data(as: UserInfo.self) {
+                    completion(.success(doc))
                 } else {
-                    let info = UserInfo(id: firebaseUser.uid, firstName: "", lastName: "", email: firebaseUser.email, verified: firebaseUser.isEmailVerified)
-                    completion(.success(info))
+                    completion(.failure(NSError(domain: "Auth", code: 404, userInfo: [NSLocalizedDescriptionKey: "User not found"])))
                 }
+            } catch {
+                completion(.failure(error))
             }
+        }
+    }
+
+    // Update address/phone fields
+    func updateUserAddress(uid: String,
+                           phone: String?,
+                           street: String?,
+                           city: String?,
+                           country: String?,
+                           completion: @escaping (Result<Void, Error>) -> Void) {
+        var data: [String: Any] = [:]
+        if let v = phone { data["phoneNumber"] = v }
+        if let v = street { data["street"] = v }
+        if let v = city { data["city"] = v }
+        if let v = country { data["country"] = v }
+
+        db.collection("users").document(uid).updateData(data) { error in
+            if let e = error { completion(.failure(e)); return }
+            completion(.success(()))
+        }
+    }
+
+    // Refresh firebase current user and return snapshot
+    func refreshCurrentUser(completion: @escaping (Result<UserInfo, Error>) -> Void) {
+        guard let firebaseUser = Auth.auth().currentUser else { return completion(.failure(NSError(domain: "Auth", code: -1))) }
+        firebaseUser.reload { err in
+            if let e = err { return completion(.failure(e)) }
+            self.fetchUserInfo(uid: firebaseUser.uid, completion: completion)
         }
     }
 }
