@@ -14,6 +14,7 @@ final class CartViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    
     func loadCart() async {
         isLoading = true
         items = await CartService.shared.fetchCart()
