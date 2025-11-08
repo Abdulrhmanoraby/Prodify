@@ -19,72 +19,252 @@ struct PaymentView: View {
     private let cashLimit: Double = 10000.0
 
     var body: some View {
-        VStack(spacing: 25) {
-            Text("Payment")
-                .font(.title2)
-                .bold()
-            
-            // MARK: Payment Method Picker
-            Picker("Payment", selection: $selectedPayment) {
-                ForEach(paymentMethods, id: \.self) { method in
-                    Text(method)
+        ScrollView {
+            VStack(spacing: 0) {
+                // MARK: Header
+                VStack(spacing: 8) {
+                    Image(systemName: "creditcard.fill")
+                        .font(.system(size: 50))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue, .purple],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .padding(.top, 20)
+                    
+                    Text("Payment")
+                        .font(.system(size: 32, weight: .bold))
+                    
+                    Text("Choose your payment method")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
-            }
-            .pickerStyle(.segmented)
-            .padding()
-
-            // MARK: Order Summary
-            VStack(spacing: 8) {
-                Text("Order Summary")
-                    .font(.headline)
-                Text("Total: $\(String(format: "%.2f", totalAmount))")
-                    .font(.title3)
-                    .foregroundColor(.blue)
-            }
-            .padding(.bottom, 20)
-
-            // MARK: Payment Options
-            if selectedPayment == "Cash" {
-                Button(action: handleCashCheckout) {
-                    Text("Place Order (Cash on Delivery)")
-                        .bold()
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-                .padding(.horizontal)
-            } else {
-                VStack(spacing: 12) {
-                    Text("Pay securely with PayPal Sandbox")
+                .padding(.bottom, 30)
+                
+                // MARK: Payment Method Selector
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Payment Method")
                         .font(.headline)
-                    PayPalButtonView(
-                        amount: String(format: "%.2f", totalAmount),
-                        cartProducts: cartProducts,
-                        address: address,
-                        email: userEmail,
-                        onOrderCreated: {
-                            Task {
-                                await handlePayPalSuccess()
-                            }
-                        },
-                        onError: { error in
-                            errorMessage = error.localizedDescription
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 20)
+                    
+                    Picker("Payment", selection: $selectedPayment) {
+                        ForEach(paymentMethods, id: \.self) { method in
+                            Text(method)
                         }
-                    )
-                    .frame(height: 45)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal, 20)
                 }
-            }
+                .padding(.bottom, 25)
 
-            // MARK: Status & Navigation
-            if isLoading { ProgressView("Processing order...") }
-            if let msg = errorMessage {
-                Text(msg).foregroundColor(.red).font(.footnote)
+                // MARK: Order Summary Card
+                VStack(spacing: 16) {
+                    HStack {
+                        Image(systemName: "cart.fill")
+                            .foregroundColor(.blue)
+                        Text("Order Summary")
+                            .font(.headline)
+                        Spacer()
+                    }
+                    
+                    Divider()
+                    
+                    VStack(spacing: 10) {
+                        HStack {
+                            Text("Items")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text("\(cartProducts.count)")
+                                .fontWeight(.medium)
+                        }
+                        
+                        HStack {
+                            Text("Delivery Address")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                        }
+                        
+                        Text(address)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .multilineTextAlignment(.trailing)
+                        
+                        Divider()
+                            .padding(.vertical, 4)
+                        
+                        HStack {
+                            Text("Total Amount")
+                                .font(.headline)
+                            Spacer()
+                            Text("$\(String(format: "%.2f", totalAmount))")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.blue, .purple],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                        }
+                    }
+                }
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(.systemBackground))
+                        .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
+                )
+                .padding(.horizontal, 20)
+                .padding(.bottom, 25)
+
+                // MARK: Payment Action Area
+                VStack(spacing: 16) {
+                    if selectedPayment == "Cash" {
+                        // Cash Payment Info Card
+                        HStack(spacing: 12) {
+                            Image(systemName: "banknote.fill")
+                                .font(.title2)
+                                .foregroundColor(.green)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Cash on Delivery")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                Text("Pay when you receive your order")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.green.opacity(0.1))
+                        )
+                        .padding(.horizontal, 20)
+                        
+                        Button(action: handleCashCheckout) {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title3)
+                                Text("Place Order")
+                                    .fontWeight(.semibold)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                LinearGradient(
+                                    colors: [.blue, .blue.opacity(0.8)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                        }
+                        .padding(.horizontal, 20)
+                        
+                    } else {
+                        // PayPal Payment Info Card
+                        HStack(spacing: 12) {
+                            Image(systemName: "app.badge.checkmark.fill")
+                                .font(.title2)
+                                .foregroundColor(.blue)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("PayPal Sandbox")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                Text("Secure payment processing")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.blue.opacity(0.1))
+                        )
+                        .padding(.horizontal, 20)
+                        
+                        PayPalButtonView(
+                            amount: String(format: "%.2f", totalAmount),
+                            cartProducts: cartProducts,
+                            address: address,
+                            email: userEmail,
+                            onOrderCreated: {
+                                Task {
+                                    await handlePayPalSuccess()
+                                }
+                            },
+                            onError: { error in
+                                errorMessage = error.localizedDescription
+                            }
+                        )
+                        .frame(height: 50)
+                        .padding(.horizontal, 20)
+                    }
+                }
+                .padding(.bottom, 20)
+
+                // MARK: Status Messages
+                if isLoading {
+                    VStack(spacing: 12) {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                        Text("Processing your order...")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 30)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(.systemGray6))
+                    )
+                    .padding(.horizontal, 20)
+                }
+                
+                if let msg = errorMessage {
+                    HStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.red)
+                        Text(msg)
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                        Spacer()
+                    }
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.red.opacity(0.1))
+                    )
+                    .padding(.horizontal, 20)
+                }
+                
+                // MARK: Security Notice
+                HStack(spacing: 8) {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("Your payment information is secure and encrypted")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.top, 20)
+                .padding(.bottom, 30)
+                
+                NavigationLink(destination: OrderListView(), isActive: $navigateToOrders) { EmptyView() }
             }
-            NavigationLink(destination: OrderListView(), isActive: $navigateToOrders) { EmptyView() }
         }
-        .padding()
+        .background(Color(.systemGroupedBackground))
+        .navigationBarTitleDisplayMode(.inline)
         .alert("Cash limit exceeded", isPresented: $showLimitAlert) {
             Button("OK", role: .cancel) {}
         } message: {
