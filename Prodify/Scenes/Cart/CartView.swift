@@ -29,9 +29,15 @@ struct CartView: View {
                                 VStack(alignment: .leading) {
                                     Text(item.title)
                                         .font(.subheadline)
-                                    Text("Qty: \(item.quantity)")
-                                        .font(.footnote)
-                                        .foregroundColor(.gray)
+                                    Stepper {
+                                        Text("Qty: \(item.quantity)")
+                                            .font(.footnote)
+                                    } onIncrement: {
+                                        Task { await vm.increaseQuantity(itemId: item.id) }
+                                    } onDecrement: {
+                                        Task { await vm.decreaseQuantity(itemId: item.id) }
+                                    }
+                                    .padding()
                                 }
 
                                 Spacer()
