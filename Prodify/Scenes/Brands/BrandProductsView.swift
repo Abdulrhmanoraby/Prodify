@@ -30,7 +30,7 @@ struct BrandProductsView: View {
             } else {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                     ForEach(vm.products) { product in
-                        NavigationLink(destination: ProductInfoView(product: product).environmentObject(CartViewModel())) {
+                        NavigationLink(destination: ProductInfoView(product: product)/*.environmentObject(CartViewModel())*/) {
                         VStack(alignment: .leading, spacing: 8) {
                             AsyncImage(url: URL(string: product.image?.src ?? "")) { img in
                                 img.resizable().scaledToFill()

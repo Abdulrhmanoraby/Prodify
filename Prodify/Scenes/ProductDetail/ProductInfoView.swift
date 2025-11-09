@@ -78,8 +78,9 @@ struct ProductInfoView: View {
                 .padding(.top, 10)
 
                 // MARK: - Navigation to Cart
-                NavigationLink("", destination: CartView().environmentObject(cartVM), isActive: $navigateToCart)
-                    .hidden()
+                NavigationLink(destination: CartView(), isActive: $navigateToCart) {
+                    EmptyView()
+                }
             }
             .padding()
         }

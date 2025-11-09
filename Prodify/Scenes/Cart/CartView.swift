@@ -94,7 +94,7 @@ struct CartView: View {
                     NavigationLink(
                         destination: PaymentView(
                             address: formatAddress(),
-                            cartProducts: vm.products,
+                           
                             totalAmount: discountedTotal,
                             userEmail: authVM.user?.email ?? "guest@prodify.com"
                         ),
@@ -113,6 +113,7 @@ struct CartView: View {
     }
 
     private func proceedToCheckout() {
+        print(vm.items.count)
         guard let user = authVM.user else { return }
 
         let missingInfo = [user.street, user.city, user.country, user.phoneNumber]

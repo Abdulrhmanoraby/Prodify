@@ -3,9 +3,10 @@ import SwiftUI
 struct PaymentView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var orderVM: OrderViewModel
+    @EnvironmentObject var cartVM: CartViewModel
     
     let address: String
-    let cartProducts: [Product]
+    //let cartProducts: [Product]
     let totalAmount: Double
     let userEmail: String
     
@@ -77,7 +78,7 @@ struct PaymentView: View {
                             Text("Items")
                                 .foregroundColor(.secondary)
                             Spacer()
-                            Text("\(cartProducts.count)")
+                            Text("\(cartVM.items.count)")
                                 .fontWeight(.medium)
                         }
                         
@@ -195,7 +196,7 @@ struct PaymentView: View {
                         
                         PayPalButtonView(
                             amount: String(format: "%.2f", totalAmount),
-                            cartProducts: cartProducts,
+                            cartProducts: cartVM.products,
                             address: address,
                             email: userEmail,
                             onOrderCreated: {
@@ -281,7 +282,7 @@ struct PaymentView: View {
         Task {
             isLoading = true
             await orderVM.createOrder(
-                products: cartProducts,
+                products: cartVM.products,
                 email: userEmail,
                 address: address,
                 paymentMethod: "Cash"
@@ -299,7 +300,7 @@ struct PaymentView: View {
     private func handlePayPalSuccess() async {
         isLoading = true
         await orderVM.createOrder(
-            products: cartProducts,
+            products: cartVM.products,
             email: userEmail,
             address: address,
             paymentMethod: "PayPal"
