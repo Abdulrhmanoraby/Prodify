@@ -19,6 +19,8 @@ struct HomeView: View {
 
                     // Search bar
                     HomeSearchBar(searchText: $searchText)
+                        .onChange(of: searchText) { 
+                        }
 
                     
                     CouponAndAdsFeature()
