@@ -14,7 +14,6 @@ final class CartViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    
     func loadCart() async {
         isLoading = true
         items = await CartService.shared.fetchCart()
@@ -34,6 +33,16 @@ final class CartViewModel: ObservableObject {
     
     func clearCart() async {
         await CartService.shared.clearCart()
+        await loadCart()
+    }
+    
+    func increaseQuantity(itemId: Int) async {
+        await CartService.shared.increaseQuantity(itemId: itemId)
+        await loadCart()
+    }
+    
+    func decreaseQuantity(itemId: Int) async {
+        await CartService.shared.decreaseQuantity(itemId: itemId)
         await loadCart()
     }
     
