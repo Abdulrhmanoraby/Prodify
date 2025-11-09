@@ -1,47 +1,168 @@
 //
 //  SettingsViewModel.swift
-//  Prodify
+//  Settings2
 //
-//  Created by Ahmed Tarek on 29/10/2025.
+//  Created by Ahmed Tarek on 05/11/2025.
 //
 
-import Foundation
 import Combine
+import SwiftUI
+import CoreLocation
+import UserNotifications
 
+@MainActor
 final class SettingsViewModel: ObservableObject {
-    @Published var settings: Settings
-    
-    private let service: SettingsServiceProtocol
-    
-    init(service: SettingsServiceProtocol = SettingsService()) {
-        self.service = service
-        self.settings = service.load()
+    @Published var model: SettingsModel
+    @Published var convertedRate: Double? = nil
+    @Published var showNotificationAlert = false
+    @Published var showLocationAlert = false
+    @Published var manualAddress = ""
+    @Published var liveAddress: String? = nil // ✅ live update while dragging the pin
+    @Published var conversionDate: Date? = nil   // ✅ new
+
+    private let defaultsKey = "ShopifySettings_v1"
+    private let geocoder = CLGeocoder()
+
+    init() {
+        if let data = UserDefaults.standard.data(forKey: defaultsKey),
+           let saved = try? JSONDecoder().decode(SettingsModel.self, from: data) {
+            self.model = saved
+        } else {
+            self.model = SettingsModel()
+        }
     }
-    
-    // MARK: - Intents
-    func toggleNotification() {
-        settings.notificationsEnabled.toggle()
+
+    func save() {
+        if let data = try? JSONEncoder().encode(model) {
+            UserDefaults.standard.set(data, forKey: defaultsKey)
+        }
+        applyTheme()
+        applyLanguage()
+    }
+
+    // MARK: - Notifications
+    func askForNotificationPermission() {
+        UNUserNotificationCenter.current()
+            .requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+                DispatchQueue.main.async {
+                    self.model.notificationsEnabled = granted
+                    self.save()
+                }
+            }
+    }
+
+    // MARK: - Location
+    func requestLocationFromSystem() {
+        LocationService.shared.requestWhenInUse { location in
+            guard let loc = location else {
+                DispatchQueue.main.async {
+                    self.model.locationName = nil
+                    self.model.locationCoordinate = nil
+                    self.save()
+                }
+                return
+            }
+            self.updateLocationName(for: loc.coordinate)
+            DispatchQueue.main.async {
+                self.model.locationCoordinate = LocationCoordinate(
+                    lat: loc.coordinate.latitude,
+                    lon: loc.coordinate.longitude
+                )
+                self.save()
+            }
+        }
+    }
+
+    /// Automatically detect location when opening settings for the first time
+    func detectCurrentCityIfNeeded() {
+        // Only if no saved location yet
+        guard model.locationCoordinate == nil else { return }
+
+        LocationService.shared.requestWhenInUse { location in
+            guard let loc = location else { return }
+            let coordinate = loc.coordinate
+            self.updateLocationName(for: coordinate)
+            DispatchQueue.main.async {
+                self.model.locationCoordinate = LocationCoordinate(lat: coordinate.latitude,
+                                                                   lon: coordinate.longitude)
+                self.save()
+            }
+        }
+    }
+
+    /// Reverse-geocode coordinates into a readable city name (called on drag)
+    func updateLocationName(for coordinate: CLLocationCoordinate2D) {
+        geocoder.reverseGeocodeLocation(CLLocation(latitude: coordinate.latitude,
+                                                   longitude: coordinate.longitude)) { placemarks, _ in
+            let name = placemarks?.first?.locality ?? placemarks?.first?.name ?? "Unknown"
+            DispatchQueue.main.async {
+                self.liveAddress = name
+            }
+        }
+    }
+
+    /// Confirm final pin position and save it
+    func confirmPickedLocation(_ coordinate: CLLocationCoordinate2D) {
+        let loc = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        geocoder.reverseGeocodeLocation(loc) { placemarks, _ in
+            let name = placemarks?.first?.locality ?? placemarks?.first?.name ?? "Unknown"
+            DispatchQueue.main.async {
+                self.model.locationName = name
+                self.model.locationCoordinate = LocationCoordinate(
+                    lat: coordinate.latitude,
+                    lon: coordinate.longitude
+                )
+                self.save()
+            }
+        }
+    }
+
+    func setManualLocation(name: String) {
+        model.locationName = name
+        model.locationCoordinate = nil
         save()
     }
-    
-    func updateLanguage(_ newLanguage: AppLanguage) {
-        settings.language = newLanguage
-        save()
+
+    // MARK: - Currency
+    func updateCurrencyConversion() async {
+        if model.currency == "EGP" {
+            do {
+                let rate = try await CurrencyService.shared.convert(amount: 1, from: "USD", to: "EGP")
+                convertedRate = rate
+                conversionDate = Date()  // ✅ make sure this is here
+                CurrencyManager.shared.update(currency: model.currency, rate: rate)
+                print("💰 1 USD = \(rate) EGP")
+            } catch {
+                print("Error fetching currency rate:", error)
+            }
+        } else {
+            convertedRate = nil
+            conversionDate = nil       // ✅ clear when switching back to USD
+            CurrencyManager.shared.update(currency: model.currency, rate: 1.0)
+        }
     }
-    
-    func updateTheme(_ newTheme: AppTheme) {
-        var copy = settings
-        copy.theme = newTheme
-        settings = copy
-        save()
+
+
+    // MARK: - Theme & Language
+    func applyTheme() {
+        for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }) {
+            for window in scene.windows {
+                switch model.theme {
+                case .system: window.overrideUserInterfaceStyle = .unspecified
+                case .light: window.overrideUserInterfaceStyle = .light
+                case .dark: window.overrideUserInterfaceStyle = .dark
+                }
+            }
+        }
     }
-    
-    func togglePermission(_ key: String) {
-        settings.permissions[key]?.toggle()
-        save()
+
+    func applyLanguage() {
+        LocalizationManager.shared.selectedLanguage = model.language.rawValue
+        LocalizationManager.shared.reloadBundle()
     }
-    
-    private func save() {
-        service.save(settings)
-    }
+
+}
+
+extension Notification.Name {
+    static let languageDidChange = Notification.Name("languageDidChange")
 }

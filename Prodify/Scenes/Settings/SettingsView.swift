@@ -1,110 +1,187 @@
 //
 //  SettingsView.swift
-//  Prodify
+//  Settings2
 //
-//  Created by Ahmed Tarek on 29/10/2025.
+//  Created by Ahmed Tarek on 05/11/2025.
 //
 
 import SwiftUI
+import MapKit
+import UserNotifications
 
 struct SettingsView: View {
-    @EnvironmentObject var vm: SettingsViewModel
-    
+    @StateObject private var vm = SettingsViewModel()
+    @ObservedObject private var localizer = LocalizationManager.shared
+
+    @State private var showMapPicker = false
+    @State private var showManualLocationSheet = false
+    @State private var manualAddressInput = ""
+    @State private var showingNotificationAlert = false
+    @State private var showingLocationAlert = false
+
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
-                // MARK: - Language
-                Section(header: Text("Language")) {
-                    Picker("App Language", selection: $vm.settings.language) {
-                        ForEach(AppLanguage.allCases, id: \.id) { lang in
-                            Text(lang.rawValue).tag(lang)
+                // MARK: Notifications
+                Section(header: Text(localizer.localizedString(for: "Notifications"))) {
+                    Toggle(isOn: $vm.model.notificationsEnabled) {
+                        Text(localizer.localizedString(for: "Enable Notifications"))
+                    }
+                    .onChange(of: vm.model.notificationsEnabled) { newValue in
+                        if newValue {
+                            showingNotificationAlert = true
+                        } else {
+                            vm.save()
                         }
                     }
-                    .pickerStyle(.navigationLink)
-                    .onChange(of: vm.settings.language) { newLang in
-                        vm.updateLanguage(newLang)
+                    .alert(localizer.localizedString(for: "Allow Notifications?"),
+                           isPresented: $showingNotificationAlert) {
+                        Button(localizer.localizedString(for: "Allow")) {
+                            vm.askForNotificationPermission()
+                        }
+                        Button(localizer.localizedString(for: "Cancel"), role: .cancel) {
+                            vm.model.notificationsEnabled = false
+                            vm.save()
+                        }
+                    } message: {
+                        Text(localizer.localizedString(for: "This app would like to send you notifications about your orders and promotions."))
                     }
                 }
-                
-                // MARK: - Theme
-                Section(header: Text("Theme")) {
-                    Picker("Appearance", selection: $vm.settings.theme) {
-                        ForEach(AppTheme.allCases, id: \.id) { theme in
-                            Text(theme.rawValue).tag(theme)
+
+                // MARK: Theme
+                Section(header: Text(localizer.localizedString(for: "Theme"))) {
+                    Picker(localizer.localizedString(for: "Theme"), selection: $vm.model.theme) {
+                        ForEach(AppTheme.allCases, id: \.self) { theme in
+                            Text(theme.rawValue.capitalized)
                         }
                     }
                     .pickerStyle(.segmented)
-                    .onChange(of: vm.settings.theme) { newTheme in
-                        vm.updateTheme(newTheme)
+                    .onChange(of: vm.model.theme) { _ in vm.save() }
+                }
+
+                // MARK: Language
+                Section(header: Text(localizer.localizedString(for: "Language"))) {
+                    Picker(localizer.localizedString(for: "Language"), selection: $vm.model.language) {
+                        Text("English").tag(AppLanguage.english)
+                        Text("العربية").tag(AppLanguage.arabic)
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: vm.model.language) { _ in
+                        vm.save()
+                        vm.applyLanguage()
                     }
                 }
-                
-                // MARK: - Notifications
-                Section(header: Text("Notifications")) {
-                    Toggle("Enable Notifications", isOn: $vm.settings.notificationsEnabled)
-                        .onChange(of: vm.settings.notificationsEnabled) { _ in
-                            vm.toggleNotification()
+
+                // MARK: Location
+                Section(header: Text(localizer.localizedString(for: "Location"))) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(vm.model.locationName ?? localizer.localizedString(for: "No location set"))
+                            .font(.subheadline)
+
+                        if let coord = vm.model.locationCoordinate {
+                            Text(String(format: "Lat: %.4f, Lon: %.4f", coord.lat, coord.lon))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
-                }
-                
-                // MARK: - Permissions
-                Section(header: Text("Permissions")) {
-                    ForEach(vm.settings.permissions.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                        Toggle(key, isOn: Binding(
-                            get: { value },
-                            set: { _ in vm.togglePermission(key) }
-                        ))
+
+                        HStack {
+                            Spacer()
+                            Menu {
+                                Button(localizer.localizedString(for: "Use Current Location (Map)")) {
+                                    showingLocationAlert = true
+                                }
+                                Button(localizer.localizedString(for: "Enter Manually")) {
+                                    manualAddressInput = vm.model.locationName ?? ""
+                                    showManualLocationSheet = true
+                                }
+                            } label: {
+                                Label(localizer.localizedString(for: "Set Location"), systemImage: "location.circle")
+                            }
+                            Spacer()
+                        }
                     }
                 }
-                
-                // MARK: - Legal & About
-                Section(header: Text("Legal & About")) {
-                    NavigationLink(destination: AboutView()) {
-                        Label("About App", systemImage: "info.circle")
+                .alert(localizer.localizedString(for: "Allow Location Access?"), isPresented: $showingLocationAlert) {
+                    Button(localizer.localizedString(for: "Allow")) {
+                        vm.requestLocationFromSystem()
+                        showMapPicker = true
                     }
-                    NavigationLink(destination: LegalView()) {
-                        Label("Terms & Privacy", systemImage: "doc.text")
+                    Button(localizer.localizedString(for: "Cancel"), role: .cancel) {}
+                }
+                .sheet(isPresented: $showMapPicker) {
+                    MapPickerView(viewModel: vm)
+                }
+                .sheet(isPresented: $showManualLocationSheet) {
+                    VStack {
+                        Text(localizer.localizedString(for: "Enter address"))
+                            .font(.headline)
+                        TextField(localizer.localizedString(for: "Address"), text: $manualAddressInput)
+                            .textFieldStyle(.roundedBorder)
+                            .padding()
+
+                        HStack {
+                            Button(localizer.localizedString(for: "Cancel")) {
+                                showManualLocationSheet = false
+                            }
+                            Spacer()
+                            Button(localizer.localizedString(for: "Save")) {
+                                vm.setManualLocation(name: manualAddressInput)
+                                showManualLocationSheet = false
+                            }
+                            .bold()
+                        }
+                        .padding()
+                    }
+                    .padding()
+                }
+
+                // MARK: Currency
+                Section(header: Text(localizer.localizedString(for: "Currency"))) {
+                    Picker(localizer.localizedString(for: "Currency"), selection: $vm.model.currency) {
+                        Text("USD").tag("USD")
+                        Text("EGP").tag("EGP")
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: vm.model.currency) { _ in
+                        vm.save()
+                        Task { await vm.updateCurrencyConversion() }
+                    }
+
+                    if let rate = vm.convertedRate, vm.model.currency == "EGP" {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(String(format: "💱 1 USD = %.2f EGP", rate))
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            if let date = vm.conversionDate {
+                                Text(localizer.localizedString(for: "As of") + " " + formattedDate(date))
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.top, 4)
                     }
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle(localizer.localizedString(for: "Settings"))
+            .onAppear {
+                vm.applyTheme()
+                vm.applyLanguage()
+                vm.detectCurrentCityIfNeeded()
+                Task { await vm.updateCurrencyConversion() }
+            }
         }
     }
 }
 
-// MARK: - Simple Subpages
-struct AboutView: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("Shopify App")
-                .font(.largeTitle).bold()
-            Text("Version 1.0.0")
-                .foregroundColor(.secondary)
-            Text("Developed by Your Name")
-        }
-        .padding()
-        .navigationTitle("About")
-    }
-}
-
-struct LegalView: View {
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Terms of Service")
-                    .font(.title2).bold()
-                Text("Here you can write your app’s terms and conditions...")
-                
-                Text("Privacy Policy")
-                    .font(.title2).bold()
-                Text("Here you can describe how user data is handled...")
-            }
-            .padding()
-        }
-        .navigationTitle("Legal")
-    }
+// MARK: - Helper
+private func formattedDate(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .short
+    return formatter.string(from: date)
 }
 
 #Preview {
     SettingsView()
 }
+
