@@ -1,6 +1,5 @@
-//
+
 //  SettingsView.swift
-//  Settings2
 //
 //  Created by Ahmed Tarek on 05/11/2025.
 //
@@ -15,7 +14,11 @@ struct SettingsView: View {
 
     @State private var showMapPicker = false
     @State private var showManualLocationSheet = false
-    @State private var manualAddressInput = ""
+    @State private var addressBuilding = ""
+    @State private var addressStreet = ""
+    @State private var addressCity = ""
+    @State private var addressCountry = ""
+    @State private var addressPhone = ""
     @State private var showingNotificationAlert = false
     @State private var showingLocationAlert = false
 
@@ -73,15 +76,44 @@ struct SettingsView: View {
                 }
 
                 // MARK: Location
-                Section(header: Text(localizer.localizedString(for: "Location"))) {
+                Section(header: Text(localizer.localizedString(for: "Address"))) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(vm.model.locationName ?? localizer.localizedString(for: "No location set"))
-                            .font(.subheadline)
-
-                        if let coord = vm.model.locationCoordinate {
-                            Text(String(format: "Lat: %.4f, Lon: %.4f", coord.lat, coord.lon))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                        if !vm.model.addresses.isEmpty {
+                            ForEach(vm.model.addresses) { addr in
+                                HStack(alignment: .firstTextBaseline) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(addr.composed)
+                                            .font(.subheadline)
+                                        if !addr.phone.isEmpty {
+                                            Text(localizer.localizedString(for: "Phone") + ": " + addr.phone)
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    Spacer()
+                                    if vm.model.selectedAddressID == addr.id {
+                                        Image(systemName: "checkmark.circle.fill").foregroundStyle(.tint)
+                                    }
+                                }
+                                .contentShape(Rectangle())
+                                .onTapGesture { vm.selectAddress(id: addr.id) }
+                            }
+                            .onDelete { offsets in
+                                vm.deleteAddress(at: offsets)
+                            }
+                        } else {
+                            Text(vm.model.composedAddress?.isEmpty == false ? vm.model.composedAddress! : (vm.model.locationName ?? localizer.localizedString(for: "No location set")))
+                                .font(.subheadline)
+                            if let coord = vm.model.locationCoordinate {
+                                Text(String(format: "Lat: %.4f, Lon: %.4f", coord.lat, coord.lon))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            if let phone = vm.model.addressPhone, !phone.isEmpty {
+                                Text(localizer.localizedString(for: "Phone") + ": " + phone)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
                         }
 
                         HStack {
@@ -90,12 +122,16 @@ struct SettingsView: View {
                                 Button(localizer.localizedString(for: "Use Current Location (Map)")) {
                                     showingLocationAlert = true
                                 }
-                                Button(localizer.localizedString(for: "Enter Manually")) {
-                                    manualAddressInput = vm.model.locationName ?? ""
+                                Button(localizer.localizedString(for: "Add Address Manually")) {
+                                    addressBuilding = ""
+                                    addressStreet = ""
+                                    addressCity = ""
+                                    addressCountry = ""
+                                    addressPhone = ""
                                     showManualLocationSheet = true
                                 }
                             } label: {
-                                Label(localizer.localizedString(for: "Set Location"), systemImage: "location.circle")
+                                Label(localizer.localizedString(for: "Manage Addresses"), systemImage: "location.circle")
                             }
                             Spacer()
                         }
@@ -112,27 +148,38 @@ struct SettingsView: View {
                     MapPickerView(viewModel: vm)
                 }
                 .sheet(isPresented: $showManualLocationSheet) {
-                    VStack {
-                        Text(localizer.localizedString(for: "Enter address"))
-                            .font(.headline)
-                        TextField(localizer.localizedString(for: "Address"), text: $manualAddressInput)
-                            .textFieldStyle(.roundedBorder)
-                            .padding()
-
-                        HStack {
-                            Button(localizer.localizedString(for: "Cancel")) {
-                                showManualLocationSheet = false
+                    NavigationStack {
+                        Form {
+                            Section(header: Text(localizer.localizedString(for: "Address Details"))) {
+                                TextField(localizer.localizedString(for: "Building"), text: $addressBuilding)
+                                TextField(localizer.localizedString(for: "Street"), text: $addressStreet)
+                                TextField(localizer.localizedString(for: "City"), text: $addressCity)
+                                TextField(localizer.localizedString(for: "Country"), text: $addressCountry)
+                                TextField(localizer.localizedString(for: "Phone Number"), text: $addressPhone)
+                                    .keyboardType(.phonePad)
                             }
-                            Spacer()
-                            Button(localizer.localizedString(for: "Save")) {
-                                vm.setManualLocation(name: manualAddressInput)
-                                showManualLocationSheet = false
-                            }
-                            .bold()
                         }
-                        .padding()
+                        .navigationTitle(localizer.localizedString(for: "Enter address"))
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button(localizer.localizedString(for: "Cancel")) {
+                                    showManualLocationSheet = false
+                                }
+                            }
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(localizer.localizedString(for: "Save")) {
+                                    vm.addManualAddress(
+                                        building: addressBuilding,
+                                        street: addressStreet,
+                                        city: addressCity,
+                                        country: addressCountry,
+                                        phone: addressPhone
+                                    )
+                                    showManualLocationSheet = false
+                                }.bold()
+                            }
+                        }
                     }
-                    .padding()
                 }
 
                 // MARK: Currency
@@ -184,4 +231,3 @@ private func formattedDate(_ date: Date) -> String {
 #Preview {
     SettingsView()
 }
-

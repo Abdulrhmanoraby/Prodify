@@ -3,6 +3,7 @@ import SwiftUI
 struct CartView: View {
     @EnvironmentObject var vm: CartViewModel
     @EnvironmentObject var authVM: AuthViewModel
+    @ObservedObject private var currency = CurrencyManager.shared
 
     @State private var navigateToPayment = false
     @State private var navigateToAddress = false
@@ -36,7 +37,7 @@ struct CartView: View {
 
                                 Spacer()
 
-                                Text("$\(item.price * Double(item.quantity), specifier: "%.2f")")
+                                Text(currency.formatPrice(fromUSD: item.price * Double(item.quantity)))
                                     .bold()
                             }
                             .swipeActions {
@@ -55,7 +56,7 @@ struct CartView: View {
                         Text("Subtotal:")
                             .font(.headline)
                         Spacer()
-                        Text("$\(vm.total, specifier: "%.2f")")
+                        Text(currency.formatPrice(fromUSD: vm.total))
                             .font(.title3)
                             .bold()
                             .foregroundColor(.blue)
@@ -95,7 +96,7 @@ struct CartView: View {
                         destination: PaymentView(
                             address: formatAddress(),
                             cartProducts: vm.products,
-                            totalAmount: discountedTotal,
+                            totalAmount: currency.convertPrice(discountedTotal),
                             userEmail: authVM.user?.email ?? "guest@prodify.com"
                         ),
                         isActive: $navigateToPayment

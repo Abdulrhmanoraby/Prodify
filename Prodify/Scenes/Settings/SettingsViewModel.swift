@@ -19,6 +19,7 @@ final class SettingsViewModel: ObservableObject {
     @Published var manualAddress = ""
     @Published var liveAddress: String? = nil // ✅ live update while dragging the pin
     @Published var conversionDate: Date? = nil   // ✅ new
+    var saveAddressToUserProfile: ((String, String, String, String, String) -> Void)? = nil
 
     private let defaultsKey = "ShopifySettings_v1"
     private let geocoder = CLGeocoder()
@@ -30,7 +31,9 @@ final class SettingsViewModel: ObservableObject {
         } else {
             self.model = SettingsModel()
         }
+        self.model.migrateLegacyAddressIfNeeded()
     }
+    // TODO: Ensure SettingsModel has addressBuilding, addressStreet, addressCity, addressCountry, addressPhone, and optionally a computed composedAddress
 
     func save() {
         if let data = try? JSONEncoder().encode(model) {
@@ -123,6 +126,71 @@ final class SettingsViewModel: ObservableObject {
         save()
     }
 
+
+    // MARK: - Addresses (Multiple)
+    func addManualAddress(building: String, street: String, city: String, country: String, phone: String) {
+        let addr = Address(building: building, street: street, city: city, country: country, phone: phone)
+        model.addresses.append(addr)
+        model.selectedAddressID = addr.id
+        // Keep legacy fields in sync (optional)
+        model.addressBuilding = building
+        model.addressStreet = street
+        model.addressCity = city
+        model.addressCountry = country
+        model.addressPhone = phone
+        model.locationName = addr.composed
+        model.locationCoordinate = nil
+        save()
+        saveAddressToUserProfile?(building, street, city, country, phone)
+    }
+
+    func selectAddress(id: UUID) {
+        guard model.addresses.contains(where: { $0.id == id }) else { return }
+        model.selectedAddressID = id
+        if let addr = model.selectedAddress { // sync legacy display
+            model.addressBuilding = addr.building
+            model.addressStreet = addr.street
+            model.addressCity = addr.city
+            model.addressCountry = addr.country
+            model.addressPhone = addr.phone
+            model.locationName = addr.composed
+            model.locationCoordinate = nil
+        }
+        save()
+    }
+
+    func deleteAddress(at offsets: IndexSet) {
+        let idsToRemove = offsets.map { model.addresses[$0].id }
+        model.addresses.remove(atOffsets: offsets)
+        if let selected = model.selectedAddressID, idsToRemove.contains(selected) {
+            model.selectedAddressID = model.addresses.first?.id
+            if let addr = model.selectedAddress {
+                model.addressBuilding = addr.building
+                model.addressStreet = addr.street
+                model.addressCity = addr.city
+                model.addressCountry = addr.country
+                model.addressPhone = addr.phone
+                model.locationName = addr.composed
+                model.locationCoordinate = nil
+            } else {
+                model.addressBuilding = nil
+                model.addressStreet = nil
+                model.addressCity = nil
+                model.addressCountry = nil
+                model.addressPhone = nil
+                model.locationName = nil
+                model.locationCoordinate = nil
+            }
+        }
+        save()
+    }
+
+    /// Backwards-compatible single-entry setter (kept for existing call sites)
+    func setManualAddress(building: String, street: String, city: String, country: String, phone: String) {
+        addManualAddress(building: building, street: street, city: city, country: country, phone: phone)
+    }
+
+
     // MARK: - Currency
     func updateCurrencyConversion() async {
         if model.currency == "EGP" {
@@ -166,3 +234,4 @@ final class SettingsViewModel: ObservableObject {
 extension Notification.Name {
     static let languageDidChange = Notification.Name("languageDidChange")
 }
+
