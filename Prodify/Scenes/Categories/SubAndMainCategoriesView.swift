@@ -21,12 +21,20 @@ struct SubAndMainCategoriesView: View {
             // MARK: - Main Categories chips
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
+                    Button {
+                        vm.selectedCategory = nil
+                        Task { await vm.applyFilters(subCategory: selectedSub) }
+                    } label: {
+                        Text("All")
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(vm.selectedCategory == nil ? Color.black.opacity(0.2) : Color(.systemGray6))
+                            .cornerRadius(20)
+                    }
                     ForEach(vm.categories) { category in
                         Button {
                             vm.selectedCategory = category
-                            Task {
-                                try? await vm.loadProducts(for: category.id)
-                            }
+                            Task { await vm.applyFilters(subCategory: selectedSub) }
                         } label: {
                             Text(category.title)
                                 .foregroundColor(.black)
@@ -56,7 +64,7 @@ struct SubAndMainCategoriesView: View {
                     }
                 }
                 .onChange(of: selectedSub) { newValue in
-                    vm.filterProducts(by: newValue)
+                    Task { await vm.applyFilters(subCategory: newValue) }
 //                    vm.selectedSubCategory = newValue
 //                    vm.applyFilters()
                 }
@@ -83,7 +91,7 @@ struct SubAndMainCategoriesView: View {
                 }
             }
             if vm.allProductTypes.isEmpty {
-                    try? await vm.loadAllProductTypes()
+                try? await vm.loadAllProductTypes()
                 }
             if vm.allProducts.isEmpty {
                     try? await vm.loadAllProducts()

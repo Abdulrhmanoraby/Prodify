@@ -14,6 +14,7 @@ struct Product: Identifiable, Codable {
     let variants: [Variant]?
     let product_type : String?
     let body_html: String?
+    var categoryID: Int? 
     struct ProductImage: Codable {
         let src: String?
     }

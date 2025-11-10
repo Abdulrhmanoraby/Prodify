@@ -15,7 +15,7 @@ struct RegisterView: View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 // Top 1/3 - Image
-                Image("loginImage")
+                Image("welcomeHero")
                     .resizable()
                     .scaledToFill()
                     .frame(width: geometry.size.width, height: geometry.size.height * 1/3)

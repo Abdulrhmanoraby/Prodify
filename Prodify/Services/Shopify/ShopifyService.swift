@@ -33,12 +33,19 @@ final class ShopifyService {
         let idsString = productIDs.joined(separator: ",")
         let productsURL = "\(Constants.baseAdminURL)/products.json?ids=\(idsString)"
         let response: ProductsResponse = try await NetworkClient.shared.get(productsURL, type: ProductsResponse.self)
-        return response.products
+        let enriched = response.products.map { prod -> Product in
+               var p = prod
+               p.categoryID = collectionID
+               return p
+           }
+           
+           return enriched
     }
     
     func fetchAllProducts(limit: Int = 8) async throws -> [Product] {
         let url = "\(Constants.baseAdminURL)/products.json?limit=\(limit)"
         let response: ProductsResponse = try await NetworkClient.shared.get(url, type: ProductsResponse.self)
+        
         return response.products
     }
     func fetchVendors() async throws -> [String] {
