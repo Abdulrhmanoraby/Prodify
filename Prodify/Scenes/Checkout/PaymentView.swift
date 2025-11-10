@@ -4,7 +4,7 @@ struct PaymentView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var orderVM: OrderViewModel
     @EnvironmentObject var currencyManager: CurrencyManager
-    
+     @EnvironmentObject var cartVM: CartViewModel
     let address: String
     //let cartProducts: [Product]
     let totalAmount: Double
