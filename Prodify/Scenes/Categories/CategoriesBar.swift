@@ -22,23 +22,7 @@ struct CategoriesBar: View {
             .background(Color(.systemGray6))
             .cornerRadius(10)
 
-            // Favorites button
-            Button {
-                // TODO: Navigate to FavoritesView
-            } label: {
-                Image(systemName: "heart")
-                    .font(.title3)
-                    .foregroundColor(.black)
-            }
 
-            // Cart button
-            Button {
-                // TODO: Navigate to CartView
-            } label: {
-                Image(systemName: "cart")
-                    .font(.title3)
-                    .foregroundColor(.primary)
-            }
         }
         .padding(.horizontal)
     }

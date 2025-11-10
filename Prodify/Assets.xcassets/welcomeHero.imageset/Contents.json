@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "loginImage.jpg",
+      "filename" : "welcomeHero.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
