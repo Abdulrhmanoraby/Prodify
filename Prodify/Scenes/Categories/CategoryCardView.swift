@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProductCard: View {
     let product: Product
+    @ObservedObject private var currency = CurrencyManager.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -54,10 +55,15 @@ struct ProductCard: View {
             Text(product.title)
                 .font(.headline)
                 .lineLimit(1)
-            Text("$\(product.variants?.first?.price ?? "0")")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+            if let priceString = product.variants?.first?.price, let usd = Double(priceString) {
+                Text(currency.formatPrice(fromUSD: usd))
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            } else {
+                Text("-")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
         }
     }
 }
-
