@@ -12,6 +12,7 @@ struct FavoriteProductView: View {
     @Query(sort: [.init(\FavoriteProduct.title, order: .forward)])
     private var favorites: [FavoriteProduct]
     @Environment(\.modelContext) private var modelContext
+    @ObservedObject private var currency = CurrencyManager.shared
     
     var body: some View {
         NavigationStack {
@@ -35,8 +36,14 @@ struct FavoriteProductView: View {
                                 if let vendor = fav.vendor {
                                     Text(vendor).font(.subheadline).foregroundColor(.secondary)
                                 }
-                                if let price = fav.price {
-                                    Text("\(price) EGP").font(.subheadline).fontWeight(.semibold)
+                                if let priceString = fav.price, let usd = Double(priceString) {
+                                    Text(currency.formatPrice(fromUSD: usd))
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                } else if let priceString = fav.price {
+                                    Text(priceString)
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
                                 }
                             }
                         }
@@ -61,3 +68,4 @@ struct FavoriteProductView: View {
         }
     }
 }
+

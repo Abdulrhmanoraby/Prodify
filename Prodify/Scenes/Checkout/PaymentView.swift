@@ -3,6 +3,7 @@ import SwiftUI
 struct PaymentView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var orderVM: OrderViewModel
+    @EnvironmentObject var currencyManager: CurrencyManager
     @EnvironmentObject var cartVM: CartViewModel
     
     let address: String
@@ -18,6 +19,11 @@ struct PaymentView: View {
 
     private let paymentMethods = ["Cash", "PayPal"]
     private let cashLimit: Double = 10000.0
+
+    // MARK: - Currency Helpers (using CurrencyManager)
+    private var isEGP: Bool { currencyManager.currentCurrency == "EGP" }
+    private var usdToEGP: Double { currencyManager.conversionRate }
+    private var displayTotalFormatted: String { currencyManager.formatPrice(fromUSD: totalAmount, minimumFractionDigits: isEGP ? 0 : 2, maximumFractionDigits: isEGP ? 0 : 2) }
 
     var body: some View {
         ScrollView {
@@ -101,7 +107,7 @@ struct PaymentView: View {
                             Text("Total Amount")
                                 .font(.headline)
                             Spacer()
-                            Text("$\(String(format: "%.2f", totalAmount))")
+                            Text(displayTotalFormatted)
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundStyle(
@@ -269,7 +275,7 @@ struct PaymentView: View {
         .alert("Cash limit exceeded", isPresented: $showLimitAlert) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Cash on delivery is available for orders up to \(Int(cashLimit)) EGP only.")
+            Text("Cash on delivery is available for orders up to \(currencyManager.formatPrice(fromUSD: cashLimit)) only.")
         }
     }
 
@@ -313,3 +319,4 @@ struct PaymentView: View {
         }
     }
 }
+

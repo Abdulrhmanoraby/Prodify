@@ -15,7 +15,7 @@ struct ProdifyApp: App {
     @StateObject private var orderVM = OrderViewModel()
     @StateObject private var vm = SettingsViewModel()
     @StateObject private var authVM = AuthViewModel()
-
+     @StateObject private var currencyManager = CurrencyManager.shared
     init() {
         FirebaseApp.configure()
         PayPalConfig.configure()
@@ -29,6 +29,7 @@ struct ProdifyApp: App {
                 .environmentObject(vm)
                 .environmentObject(authVM)
                 .modelContainer(for: [FavoriteProduct.self])
+                .environmentObject(currencyManager)
         }
     }
 }

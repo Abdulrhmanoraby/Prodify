@@ -10,6 +10,7 @@ struct BrandProductsView: View {
     let vendor: String
     @StateObject private var vm: BrandProductsViewModel
     @EnvironmentObject var cartVM: CartViewModel
+    @ObservedObject private var currency = CurrencyManager.shared
 
     init(vendor: String) {
         self.vendor = vendor
@@ -43,8 +44,13 @@ struct BrandProductsView: View {
                             Text(product.title)
                                 .font(.subheadline)
                                 .lineLimit(2)
-                            Text("$\(product.variants?.first?.price ?? "-")")
-                                .font(.headline)
+                            if let priceString = product.variants?.first?.price, let usd = Double(priceString) {
+                                Text(currency.formatPrice(fromUSD: usd))
+                                    .font(.headline)
+                            } else {
+                                Text("-")
+                                    .font(.headline)
+                            }
                             // Add to Cart Button
                             Button {
                                 Task {
@@ -86,5 +92,4 @@ struct BrandProductsView: View {
         }
     }
 }
-
 
