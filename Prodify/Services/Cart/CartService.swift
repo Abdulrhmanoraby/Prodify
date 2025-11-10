@@ -41,6 +41,26 @@ actor CartService {
         items.removeAll { $0.id == itemId }
     }
     
+    // MARK: - Update Quantity
+    func increaseQuantity(itemId: Int) async {
+        guard let index = items.firstIndex(where: { $0.id == itemId }) else { return }
+        var updated = items[index]
+        updated.quantity += 1
+        items[index] = updated
+    }
+    
+    func decreaseQuantity(itemId: Int) async {
+        guard let index = items.firstIndex(where: { $0.id == itemId }) else { return }
+        var updated = items[index]
+        if updated.quantity > 1 {
+            updated.quantity -= 1
+            items[index] = updated
+        } else {
+            // If quantity would drop below 1, remove the item entirely
+            items.removeAll { $0.id == itemId }
+        }
+    }
+    
     // MARK: - Clear Cart
     func clearCart() async {
         items.removeAll()

@@ -28,6 +28,7 @@ struct ProdifyApp: App {
                 .environmentObject(orderVM)
                 .environmentObject(vm)
                 .environmentObject(authVM)
+                .modelContainer(for: [FavoriteProduct.self])
         }
     }
 }
