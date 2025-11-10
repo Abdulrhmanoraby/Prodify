@@ -216,6 +216,8 @@ struct PaymentView: View {
                         )
                         .frame(height: 50)
                         .padding(.horizontal, 20)
+                        .frame(height: 50)
+                        .padding(.horizontal, 20)
                     }
                 }
                 .padding(.bottom, 20)
@@ -314,6 +316,7 @@ struct PaymentView: View {
         isLoading = false
         if orderVM.successMessage != nil {
             navigateToOrders = true
+        
         } else {
             errorMessage = orderVM.errorMessage
         }

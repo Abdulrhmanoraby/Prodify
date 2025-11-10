@@ -28,7 +28,17 @@ struct OrderListView: View {
             .navigationTitle("My Orders")
             .navigationBarTitleDisplayMode(.large)
             .task {
-                await reloadOrders()
+                if let user = Auth.auth().currentUser {
+                    currentEmail = user.email ?? "guest@prodify.com"
+                    await vm.fetchOrders(for: currentEmail)
+                }
+            }
+            .onAppear {
+                Task {
+                    if let user = Auth.auth().currentUser {
+                        await vm.fetchOrders(for: user.email ?? "guest@prodify.com")
+                    }
+                }
             }
         }
     }
