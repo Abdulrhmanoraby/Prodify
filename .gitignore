@@ -4,4 +4,4 @@ build/
 *.xcworkspace
 xcuserdata/
 Pods/
-*.xcuserstate
+*.xcuserstate.DS_Store
