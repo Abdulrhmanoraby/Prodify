@@ -101,7 +101,7 @@ struct CartView: View {
                     NavigationLink(
                         destination: PaymentView(
                             address: formatAddress(),
-                            cartProducts: vm.products,
+
                             totalAmount: currency.convertPrice(discountedTotal),
                             userEmail: authVM.user?.email ?? "guest@prodify.com"
                         ),

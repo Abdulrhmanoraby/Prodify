@@ -5,6 +5,7 @@ struct OrderListView: View {
     @EnvironmentObject var vm: OrderViewModel
     @State private var currentEmail = ""
     @State private var refreshID = UUID()
+    @ObservedObject private var currency = CurrencyManager.shared
     
     var body: some View {
         NavigationStack {
@@ -159,10 +160,17 @@ struct OrderListView: View {
                         
                         Spacer()
                         
-                        Text("\(total) EGP")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.green)
+                        if let usd = Double(total) {
+                            Text(currency.formatPrice(fromUSD: usd))
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.green)
+                        } else {
+                            Text(total)
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.green)
+                        }
                     }
                 }
                 

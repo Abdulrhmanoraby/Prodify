@@ -15,6 +15,7 @@ struct ProductInfoView: View {
     let product: Product
     @EnvironmentObject var cartVM: CartViewModel
     @Environment(\.modelContext) private var modelContext
+    @ObservedObject private var currency = CurrencyManager.shared
 
     // UI state
     @State private var isAdding = false
@@ -54,10 +55,17 @@ struct ProductInfoView: View {
                 }
 
                 // MARK: - Price
-                Text("\(product.variants?.first?.price ?? "—") EGP")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .padding(.vertical, 4)
+                if let priceString = product.variants?.first?.price, let usdPrice = Double(priceString) {
+                    Text(currency.formatPrice(fromUSD: usdPrice))
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .padding(.vertical, 4)
+                } else {
+                    Text("—")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .padding(.vertical, 4)
+                }
 
                 // MARK: - Description
                 if let desc = product.body_html, !desc.isEmpty {
@@ -210,3 +218,4 @@ struct ProductInfoView: View {
         }
     }
 }
+
