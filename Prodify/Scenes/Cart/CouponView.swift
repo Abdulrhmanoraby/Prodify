@@ -9,7 +9,8 @@ struct CouponView: View {
     @State private var discount: Double = 0
     @State private var totalAmount: Double = 0
     @State private var showInvalidCouponAlert = false
-
+    @ObservedObject private var currency = CurrencyManager.shared
+    
     var body: some View {
         VStack(spacing: 16) {
             Text("Apply Coupon")
@@ -26,13 +27,14 @@ struct CouponView: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Subtotal: \(totalAmount, specifier: "%.2f") EGP")
+                // Display amounts in the selected currency (values are stored/calculated in USD)
+                Text("Subtotal: \(currency.formatPrice(fromUSD: totalAmount))")
                 if discount > 0 {
-                    Text("Discount: -\(discount, specifier: "%.2f") EGP")
+                    Text("Discount: -\(currency.formatPrice(fromUSD: discount))")
                         .foregroundColor(.green)
                 }
                 Divider()
-                Text("Total: \(discountedTotal, specifier: "%.2f") EGP")
+                Text("Total: \(currency.formatPrice(fromUSD: discountedTotal))")
                     .font(.headline)
             }
         }

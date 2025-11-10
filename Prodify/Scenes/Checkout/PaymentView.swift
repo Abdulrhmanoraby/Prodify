@@ -4,7 +4,8 @@ struct PaymentView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var orderVM: OrderViewModel
     @EnvironmentObject var currencyManager: CurrencyManager
-     @EnvironmentObject var cartVM: CartViewModel
+    @EnvironmentObject var cartVM: CartViewModel
+    
     let address: String
     //let cartProducts: [Product]
     let totalAmount: Double
@@ -274,7 +275,7 @@ struct PaymentView: View {
         .alert("Cash limit exceeded", isPresented: $showLimitAlert) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Cash on delivery is available for orders up to \(Int(cashLimit)) EGP only.")
+            Text("Cash on delivery is available for orders up to \(currencyManager.formatPrice(fromUSD: cashLimit)) only.")
         }
     }
 
