@@ -35,7 +35,7 @@ struct PayPalButtonView: UIViewRepresentable {
         init(_ parent: PayPalButtonView) { self.parent = parent }
 
         @objc func startCheckout() {
-            print("🟦 Starting PayPal checkout...")
+            print(" Starting PayPal checkout...")
 
             let amount = PurchaseUnit.Amount(currencyCode: .usd, value: parent.amount)
             let unit = PurchaseUnit(amount: amount)
@@ -76,7 +76,7 @@ struct PayPalButtonView: UIViewRepresentable {
                             self.parent.onError(err)
                             return
                         }
-                        print("✅ PayPal payment captured successfully:")
+                        print("PayPal payment captured successfully:")
                         dump(response)
 
                         // After successful PayPal payment, create Shopify order

@@ -26,7 +26,7 @@ final class OrderViewModel: ObservableObject {
           request.setValue("application/json", forHTTPHeaderField: "Content-Type")
           request.setValue(Constants.adminApiAccessToken, forHTTPHeaderField: "X-Shopify-Access-Token")
 
-          // 🧾 Build line items
+          // Build line items
           let lineItems = products.map { product in
               [
                   "title": product.title,
@@ -35,7 +35,7 @@ final class OrderViewModel: ObservableObject {
               ]
           }
 
-          // 💳 Payment simulation logic
+          //Payment simulation logic
           #if targetEnvironment(simulator)
           let isSimulator = true
           #else
@@ -44,7 +44,7 @@ final class OrderViewModel: ObservableObject {
 
           let finalIsSimulated = isSimulatedPayment || isSimulator
 
-          // 💰 Determine payment status
+          // Determine payment status
           let financialStatus: String
           if paymentMethod == "PayPal" {
               financialStatus = finalIsSimulated ? "paid" : "paid" // simulate real payment as 'paid'
@@ -61,7 +61,7 @@ final class OrderViewModel: ObservableObject {
                   "send_fulfillment_receipt": true,
                   "financial_status": financialStatus,
                   "payment_gateway_names": [gatewayName],
-                  "note": finalIsSimulated ? "🧪 Test order (Simulator Payment)" : "Real order",
+                  "note": finalIsSimulated ? "Test order (Simulator Payment)" : "Real order",
                   "line_items": lineItems,
                   "shipping_address": [
                       "address1": address,
