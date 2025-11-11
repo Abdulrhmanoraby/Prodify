@@ -8,11 +8,12 @@ Prodify is a mobile commerce iOS application designed to provide a smooth shoppi
 
 1. **Abdulrhman Mohammed Ahmed Oraby**  
   
-
-2. **Alaa Muhamed Abdullah**  
+2. **Ahmed Tarek Elsayed Ali Elmahdy**
+  
+3. **Alaa Muhamed Abdullah**  
    
 
-3. **Ahmed Tarek Elsayed Ali Elmahdy**  
+ 
    
 
 ---
